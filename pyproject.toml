@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "remine"
+version = "0.1.0"
+description = ""
+authors = ["Null.vg <me@null.vg>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+rich = "^13.5.2"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
