@@ -6,8 +6,9 @@ from rich.prompt import Prompt
 import requests
 import os
 import re
-from time import sleep
 import shutil
+console = Console()
+cache_dir = os.path.expanduser('~')+'/.remine/cache/'
 
 class NoJdkError(Exception):
     pass
@@ -27,13 +28,11 @@ def get_jdk(version = 8):
 
 def get_spigot_buildtools():
     if os.path.exists('./buildtools.jar'):
-        console.log('Use Downloaded Buildtools')
         return
     buildtools = requests.get('https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar').content
-    with open('./buildtools.jar', mode='wb') as f:
-        f.write(buildtools)
+    open('./buildtools.jar', mode='wb').write(buildtools)
 
-def build_spigot(version = None, jdk_version = None):
+def build_spigot(version = None, jdk_version = None, retry = False):
     try:
         jdk = str(get_jdk(jdk_version if jdk_version is not None else 8))
     except NoJdkError:
@@ -43,7 +42,10 @@ def build_spigot(version = None, jdk_version = None):
     os.makedirs('build', exist_ok=True)
     os.chdir('build')
     get_spigot_buildtools()
-    console.log('Building started.')
+    if retry:
+        pass
+    else:
+        console.log('Building started.')
     result = subprocess.run(
             [jdk, '-jar', 'buildtools.jar', '--rev', version if version is not None else 'latest'],
             text=True, capture_output=True
@@ -56,22 +58,62 @@ def build_spigot(version = None, jdk_version = None):
         if 'but you are using' in result.stderr:
             error = str(result.stderr).split('\n')[4]
             jdk_ver = re.findall(r'\[(.+)\]', error)[0][5:7]
-            console.log('JDK version error detected. Trying with ', get_jdk(jdk_ver))
-            build_spigot(version, jdk_version = jdk_ver)
+            console.log('JDK version error detected. Retrying with ', get_jdk(jdk_ver))
+            build_spigot(version, jdk_version = jdk_ver, retry=True)
             return
         else:
-            console.log('[green][bold]Building successfully Done!')
             shutil.copy(f'./spigot-{version}.jar', f'../spigot-{version}.jar')
 
-if __name__ == '__main__':
-    version = Prompt.ask('Which Version to use?', default='Latest')
-    if version == 'Latest':
-        version = None
-    cache_dir = os.path.expanduser('~')+'/.remine/cache/'
+def download_paper(version = None):
+    os.chdir(cache_dir)
+    if version == None:
+        response = requests.get('https://api.papermc.io/v2/projects/paper') 
+        version = response.json()['versions'].pop()
+    response = requests.get(f'https://api.papermc.io/v2/projects/paper/versions/{version}')
+    try:
+        build_number = response.json()['builds'].pop()
+    except:
+        print('[red]ERROR!')
+        exit()
+    response = requests.get(f'https://api.papermc.io/v2/projects/paper/versions/{version}/builds/{build_number}/downloads/paper-{version}-{build_number}.jar')
+    if response.status_code == requests.codes.ok:
+        pass
+    else:
+        print('[red]ERROR!')
+        exit()
+    open(f'{cache_dir}paper-{version}.jar', 'wb').write(response.content)
+
+def download_purpur(version = None):
+    os.chdir(cache_dir)
+    if version == None:
+        response = requests.get('https://api.purpurmc.org/v2/purpur') 
+        version = response.json()['versions'].pop()
+    response = requests.get(f'https://api.purpurmc.org/v2/purpur/{version}/latest/download')
+    if response.status_code == requests.codes.ok:
+        pass
+    else:
+        print('[red]ERROR!')
+        exit()
+    open(f'{cache_dir}purpur-{version}.jar', 'wb').write(response.content)
+
+
+def serverdownload(version = None, type = 'paper'):
     os.makedirs(cache_dir, exist_ok=True)
-    console = Console()
-    if glob.glob(f'{cache_dir}spigot-{version}.jar') == []:
-        with console.status('[bold][blue]Building Spigot'):
-            build_spigot(version)
+    if glob.glob(f'{cache_dir}{type}-{version}.jar') == []:
+        if type == 'spigot':
+            with console.status('[bold][orange]Building Spigot'):
+                build_spigot(version)
+        elif type == 'paper':
+            with console.status('[bold][blue]Downloading Paper'):
+                download_paper(version)
+        elif type == 'purpur':
+            with console.status('[bold][purple]Downloading Purpur'):
+                download_purpur(version)
+        elif type == 'vanilla':
+            exit()
+        else:
+            console.log('[red]Sorry, this is an Error. ;)')
+            exit()
+        console.log('[green][bold]Successfully Done!')
     else:
         print('[green]Use cached server.')
