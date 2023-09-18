@@ -12,6 +12,6 @@ _Build Minecraft Server **Blazing fast.**_
 
 ![](https://img.shields.io/badge/Python%203.11-FFD43B?style=for-the-badge&logo=python&logocolor=4B8BBE)
 ![](https://img.shields.io/badge/License%3A%20MIT-bd93f9?style=for-the-badge)
-![](https://dcbadge.vercel.app/api/server/pWY24yeH9R?theme=blurple)
+[![](https://dcbadge.vercel.app/api/server/pWY24yeH9R?theme=blurple)](https://discord.gg/pWY24yeH9R)
 
 </div>
