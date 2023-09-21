@@ -32,7 +32,7 @@ jobs:
         uses: abatilo/actions-poetry@v2.0.0
 
       - name: Install deps
-        run: poetry install
+        run: poetry install && poetry shell
 
       # Build python script into a stand-alone exe
       - uses: jimkring/python-script-to-exe@v0.2.0
