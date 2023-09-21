@@ -27,6 +27,12 @@ jobs:
         with:
           python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+    
+      - name: Run image
+        uses: abatilo/actions-poetry@v2.0.0
+
+      - name: Install deps
+        run: poetry shell && poetry install
 
       # Build python script into a stand-alone exe
       - uses: jimkring/python-script-to-exe@v0.2.0
