@@ -47,4 +47,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: exe
-          path: build/test.exe
+          path: main.dist\main.exe
