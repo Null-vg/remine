@@ -35,7 +35,7 @@ jobs:
         run: poetry install
 
       - name: Into shell
-        run: poetry run nuitka --follow-imports --onefile ./client/main.py
+        run: poetry run python -m nuitka --follow-imports --onefile ./client/main.py
 
       # # Build python script into a stand-alone exe
       # - uses: jimkring/python-script-to-exe@v0.2.0
