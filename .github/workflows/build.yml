@@ -32,12 +32,15 @@ jobs:
         uses: abatilo/actions-poetry@v2.0.0
 
       - name: Install deps
-        run: poetry install && poetry shell
+        run: poetry install
 
-      # Build python script into a stand-alone exe
-      - uses: jimkring/python-script-to-exe@v0.2.0
-        with:
-          script-name: client/main.py
+      - name: Into shell
+        run: poetry run nuitka --follow-imports --onefile ./client/main.py
+
+      # # Build python script into a stand-alone exe
+      # - uses: jimkring/python-script-to-exe@v0.2.0
+      #   with:
+      #     script-name: client/main.py
       
       # Uploads artifact
       - name: Upload Artifact
