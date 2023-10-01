@@ -32,16 +32,19 @@ jobs:
         uses: abatilo/actions-poetry@v2.0.0
 
       - name: Install deps
-        run: poetry install && poetry shell
+        run: poetry install
 
-      # Build python script into a stand-alone exe
-      - uses: jimkring/python-script-to-exe@v0.2.0
-        with:
-          script-name: client/main.py
+      - name: Into shell
+        run: poetry run python -m nuitka --follow-imports --standalone --assume-yes-for-downloads ./client/main.py
+
+      # # Build python script into a stand-alone exe
+      # - uses: jimkring/python-script-to-exe@v0.2.0
+      #   with:
+      #     script-name: client/main.py
       
       # Uploads artifact
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: exe
-          path: build/test.exe
+          path: main.dist\main.exe
