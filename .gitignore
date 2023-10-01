@@ -10,7 +10,7 @@ _build
 .cache
 *.so
 *.bin
-main.*/
+main*/
 
 # Installer logs
 pip-log.txt
